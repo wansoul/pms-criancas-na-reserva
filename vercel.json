@@ -1,0 +1,6 @@
+{
+  "installCommand": "npm install",
+  "buildCommand": "npx turbo run build --filter=pms",
+  "outputDirectory": "apps/pms/.next",
+  "framework": "nextjs"
+}
