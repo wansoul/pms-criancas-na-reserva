@@ -32,7 +32,7 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="h-14 justify-center px-3">
+      <SidebarHeader className="h-14 justify-center px-3 group-data-[collapsible=icon]:items-center">
         <Link href="/home" className="flex items-center gap-2.5">
           <Image
             src="/hospedin-icon-light.svg"
@@ -70,11 +70,17 @@ export function AppSidebar() {
                       const isActive =
                         pathname === item.url || pathname.startsWith(`${item.url}/`)
                       return (
-                        <SidebarMenuItem key={item.url}>
+                        <SidebarMenuItem
+                          key={item.url}
+                          className="group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center"
+                        >
+                          {isActive ? (
+                            <span className="pointer-events-none absolute inset-y-0 left-0 hidden w-1 bg-[#19c2a8] group-data-[collapsible=icon]:block" />
+                          ) : null}
                           <SidebarMenuButton
                             isActive={isActive}
                             tooltip={item.title}
-                            className="rounded-none group-data-[state=expanded]:pl-5 data-active:group-data-[state=expanded]:border-l-4 data-active:group-data-[state=expanded]:border-l-[#19c2a8] data-active:group-data-[state=expanded]:pl-4 data-active:!bg-[#19c2a8]/12 data-active:!text-[#19c2a8]"
+                            className="rounded-none group-data-[state=expanded]:pl-5 data-active:group-data-[state=expanded]:border-l-4 data-active:group-data-[state=expanded]:border-l-[#19c2a8] data-active:group-data-[state=expanded]:pl-4 data-active:group-data-[state=expanded]:!bg-[#19c2a8]/12 data-active:!text-[#19c2a8]"
                             render={<Link href={item.url} />}
                           >
                             <item.icon weight={isActive ? "fill" : "regular"} />
@@ -98,10 +104,10 @@ export function AppSidebar() {
 
       <SidebarFooter className="px-0">
         <SidebarMenu>
-          <SidebarMenuItem>
+          <SidebarMenuItem className="group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center">
             <SidebarMenuButton
               tooltip="Ajuda"
-              className="rounded-none pl-5 text-[#f5d400] hover:text-[#f5d400] [&_svg]:text-[#f5d400]"
+              className="rounded-none group-data-[state=expanded]:pl-5 text-[#f5d400] hover:text-[#f5d400] [&_svg]:text-[#f5d400]"
               render={<Link href="/ajuda" />}
             >
               <Question weight="fill" />
