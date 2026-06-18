@@ -58,7 +58,7 @@ export function AppSidebar() {
             <SidebarGroup className="px-0">
               <SidebarGroupLabel
                 render={<CollapsibleTrigger />}
-                className="cursor-pointer pl-5 text-sidebar-foreground/55 uppercase tracking-wider hover:text-sidebar-foreground/80"
+                className="cursor-pointer pl-5 text-sidebar-foreground/55 uppercase tracking-wider hover:text-sidebar-foreground/80 group-data-[collapsible=icon]:pointer-events-none"
               >
                 {section.label}
                 <CaretDown className="ml-auto size-3.5 transition-transform duration-200 group-data-[panel-open]/section:rotate-180" />
