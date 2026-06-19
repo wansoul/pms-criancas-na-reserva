@@ -8,7 +8,6 @@ import { TooltipProvider } from "@workspace/ui/components/tooltip"
 import { DensityProvider } from "@workspace/ui/components/density-provider"
 import { cn } from "@workspace/ui/lib/utils"
 import { ThemeProvider } from "@/components/theme-provider"
-import { HotjarInit } from "@/components/hotjar-init"
 
 import { AppSidebar } from "./_components/app-sidebar"
 import { AppTopbar } from "./_components/app-topbar"
@@ -39,7 +38,6 @@ export default function RootLayout({
       className={cn("antialiased", fontMono.variable, "font-sans", openSans.variable, montserratHeading.variable)}
     >
       <body>
-        <HotjarInit />
         <ThemeProvider>
           <DensityProvider defaultDensity="comfortable">
             <TooltipProvider delay={0}>

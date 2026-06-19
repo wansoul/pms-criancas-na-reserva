@@ -52,7 +52,6 @@ pms-base/
 - `app/cadastros/categorias-de-uh/` is the first **fully built** Cadastros area — a list (`categories-table.tsx`), create (`nova/`), and edit (`[id]/`) flow sharing `category-form.tsx`, backed by mock data in its `data/` folder. Use it as the reference pattern when building out other Cadastros areas.
 - Fonts: **Montserrat** (`--font-heading`), **Open Sans** (`--font-sans`), **Geist Mono** (`--font-mono`).
 - Density system via `DensityProvider` with `comfortable` default.
-- **Analytics**: Hotjar is wired via `components/hotjar-init.tsx` (mounted in `app/layout.tsx`, `@hotjar/browser`). Guard any new Hotjar calls for the client/prototype context.
 - Key client lib in `apps/pms`: `next-themes` (dark mode). (Charting/`recharts` and `react-colorful` were dropped along with the removed dashboard/motor modules — re-add via npm if a new built page needs them.)
 
 ### `packages/ui` — Shared Design System

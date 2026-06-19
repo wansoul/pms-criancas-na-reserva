@@ -24,8 +24,5 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ],
-  "dependencies": {
-    "@hotjar/browser": "^1.0.9"
-  }
+  ]
 }
