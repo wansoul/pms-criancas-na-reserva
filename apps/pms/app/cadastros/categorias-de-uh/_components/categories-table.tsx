@@ -90,7 +90,11 @@ export function CategoriesTable({ categories }: { categories: UhCategory[] }) {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <Button render={<Link href="/cadastros/categorias-de-uh/nova" />} className="ml-auto">
+        <Button
+          nativeButton={false}
+          render={<Link href="/cadastros/categorias-de-uh/nova" />}
+          className="ml-auto"
+        >
           <PlusCircle weight="fill" />
           Nova categoria
         </Button>
