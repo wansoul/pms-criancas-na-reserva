@@ -121,7 +121,8 @@ export function ReservationForm() {
   const breakdown = calculateDailyRate(
     tariff,
     parseInt(adults, 10) || 0,
-    childrenAges.map((age) => parseInt(age, 10) || 0)
+    childrenAges.map((age) => parseInt(age, 10) || 0),
+    breakfast
   )
   const totalDiarias = breakdown.total * nights
 
@@ -320,6 +321,12 @@ export function ReservationForm() {
                   <span>{formatCurrency(line.price)}</span>
                 </div>
               ))}
+              {breakdown.breakfastPrice > 0 && (
+                <div className="flex justify-between gap-3">
+                  <span>Café da manhã</span>
+                  <span>{formatCurrency(breakdown.breakfastPrice)}</span>
+                </div>
+              )}
               <div className="flex justify-between gap-3 border-t border-border pt-1 font-medium text-foreground">
                 <span>Valor por diária</span>
                 <span>{formatCurrency(breakdown.total)}</span>

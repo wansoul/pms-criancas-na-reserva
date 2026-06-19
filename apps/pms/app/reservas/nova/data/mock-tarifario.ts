@@ -18,6 +18,8 @@ export type Tariff = {
   baseOccupancy: number
   basePrice: number
   extraAdultPrice: number
+  /** Acréscimo por diária quando o café da manhã está incluído (valor por UH, não por hóspede). */
+  breakfastPrice: number
   /** Ordenadas por idade crescente. Deve cobrir ao menos uma faixa isenta (price: 0). */
   childBands: ChildBand[]
 }
@@ -29,6 +31,7 @@ export const mockTariffs: Tariff[] = [
     baseOccupancy: 2,
     basePrice: 200,
     extraAdultPrice: 80,
+    breakfastPrice: 30,
     childBands: [
       { minAge: 0, maxAge: 5, price: 0 },
       { minAge: 6, maxAge: 10, price: 50 },
@@ -41,6 +44,7 @@ export const mockTariffs: Tariff[] = [
     baseOccupancy: 2,
     basePrice: 320,
     extraAdultPrice: 110,
+    breakfastPrice: 40,
     childBands: [
       { minAge: 0, maxAge: 6, price: 0 },
       { minAge: 7, maxAge: 12, price: 70 },
@@ -52,6 +56,7 @@ export const mockTariffs: Tariff[] = [
     baseOccupancy: 4,
     basePrice: 450,
     extraAdultPrice: 90,
+    breakfastPrice: 55,
     childBands: [
       { minAge: 0, maxAge: 4, price: 0 },
       { minAge: 5, maxAge: 9, price: 40 },
@@ -64,6 +69,7 @@ export const mockTariffs: Tariff[] = [
     baseOccupancy: 2,
     basePrice: 380,
     extraAdultPrice: 120,
+    breakfastPrice: 45,
     childBands: [
       { minAge: 0, maxAge: 5, price: 0 },
       { minAge: 6, maxAge: 12, price: 90 },

@@ -31,13 +31,16 @@ export type RateBreakdown = {
   extraAdultsCount: number
   extraAdultsTotal: number
   extraChildLines: { label: string; price: number }[]
+  /** Acréscimo de café da manhã aplicado a esta diária (0 quando não incluído). */
+  breakfastPrice: number
   total: number
 }
 
 export function calculateDailyRate(
   tariff: Tariff | undefined,
   adults: number,
-  childrenAges: number[]
+  childrenAges: number[],
+  breakfast: boolean = false
 ): RateBreakdown {
   if (!tariff) {
     return {
@@ -45,6 +48,7 @@ export function calculateDailyRate(
       extraAdultsCount: 0,
       extraAdultsTotal: 0,
       extraChildLines: [],
+      breakfastPrice: 0,
       total: 0,
     }
   }
@@ -108,16 +112,20 @@ export function calculateDailyRate(
     price: price * count,
   }))
 
+  const breakfastPrice = breakfast ? tariff.breakfastPrice : 0
+
   const total =
     tariff.basePrice +
     extraAdultsTotal +
-    extraChildLines.reduce((sum, line) => sum + line.price, 0)
+    extraChildLines.reduce((sum, line) => sum + line.price, 0) +
+    breakfastPrice
 
   return {
     basePrice: tariff.basePrice,
     extraAdultsCount,
     extraAdultsTotal,
     extraChildLines,
+    breakfastPrice,
     total,
   }
 }
