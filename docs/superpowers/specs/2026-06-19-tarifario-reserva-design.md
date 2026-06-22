@@ -50,8 +50,8 @@ Uma tarifa mock por categoria ativa existente (`Standard Casal`=1, `Suíte Casal
 O contador "Nº crianças" (dentro do bloco "Nº hóspedes") passa a gerar uma lista vertical de campos — um por criança, na ordem em que o contador foi incrementado:
 
 ```
-Criança 1 — idade [___]   [paga]
-Criança 2 — idade [___]   [isenta]
+Criança 1 — idade [___]
+Criança 2 — idade [___]
 ```
 
 - Estado: `childrenAges: string[]`, sincronizado em tamanho com o contador "Nº crianças" (aumentar o contador adiciona uma idade vazia ao final; diminuir remove a última).
