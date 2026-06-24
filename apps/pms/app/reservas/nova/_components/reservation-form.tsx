@@ -24,6 +24,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@workspace/ui/components/select"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@workspace/ui/components/tooltip"
 import { cn } from "@workspace/ui/lib/utils"
 
 import { getTariffForUh, type Tariff } from "../data/mock-tarifario"
@@ -451,16 +456,17 @@ function ChildrenCount({
       <Input type="number" min={0} value={String(ages.length)} onChange={(e) => onCountChange(e.target.value)} />
       {ages.length > 0 && (
         <div className="mt-1 flex flex-col gap-1.5">
-          {ages.map((age, i) => (
-            <div key={i} className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground">Criança {i + 1} — idade</span>
+          {ages.map((age, i) => {
+            const select = (
               <Select
                 value={age}
                 onValueChange={(v) => onAgeChange(i, v ?? "")}
                 disabled={!tariff}
               >
-                <SelectTrigger size="sm" className="h-7 w-20 px-2 text-xs">
-                  <SelectValue placeholder="idade" />
+                <SelectTrigger size="sm" className="h-7 w-24 px-2 text-xs">
+                  <SelectValue placeholder="Idade">
+                    {(value) => (value ? `${value} anos` : "Idade")}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {payingAges.map((a) => (
@@ -470,8 +476,27 @@ function ChildrenCount({
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-          ))}
+            )
+            return (
+              <div key={i} className="flex items-center justify-between gap-2">
+                <span className="text-xs text-muted-foreground">Criança {i + 1}</span>
+                {tariff ? (
+                  select
+                ) : (
+                  <Tooltip>
+                    {/* A disabled control doesn't fire pointer events, so the
+                        trigger wraps it with its own hover-catching element. */}
+                    <TooltipTrigger render={<span className="inline-flex" />}>
+                      {select}
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      Selecione primeiro a UH para informar a idade.
+                    </TooltipContent>
+                  </Tooltip>
+                )}
+              </div>
+            )
+          })}
         </div>
       )}
     </div>
