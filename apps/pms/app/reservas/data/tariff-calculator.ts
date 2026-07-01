@@ -11,7 +11,9 @@ export function isChildExempt(age: number, tariff: Tariff): boolean {
 }
 
 function findChildBand(age: number, tariff: Tariff): ChildBand | undefined {
-  return tariff.childBands.find((band) => age >= band.minAge && age <= band.maxAge)
+  return tariff.childBands.find(
+    (band) => age >= band.minAge && age <= band.maxAge
+  )
 }
 
 /** Ages covered by paying bands (price > 0), ascending — used to populate the age dropdown. */
@@ -76,7 +78,10 @@ export function calculateDailyRate(
 
   // 4. Agrupa crianças extras por faixa/preço (fallback = preço de adulto extra).
   type GroupKey = string
-  const groups = new Map<GroupKey, { label: string; price: number; count: number }>()
+  const groups = new Map<
+    GroupKey,
+    { label: string; price: number; count: number }
+  >()
 
   for (const age of extraPayingChildren) {
     const band = findChildBand(age, tariff)
@@ -107,10 +112,12 @@ export function calculateDailyRate(
     }
   }
 
-  const extraChildLines = Array.from(groups.values()).map(({ label, price, count }) => ({
-    label: `${count} criança${count > 1 ? "s" : ""} ${label}`,
-    price: price * count,
-  }))
+  const extraChildLines = Array.from(groups.values()).map(
+    ({ label, price, count }) => ({
+      label: `${count} criança${count > 1 ? "s" : ""} ${label}`,
+      price: price * count,
+    })
+  )
 
   const breakfastPrice = breakfast ? tariff.breakfastPrice : 0
 
