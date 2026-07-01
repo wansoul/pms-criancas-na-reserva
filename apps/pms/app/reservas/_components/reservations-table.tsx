@@ -13,10 +13,18 @@ import {
   Minus,
   CornersOut,
   CaretUpDown,
+  CaretDown,
 } from "@phosphor-icons/react"
 
-import { Button } from "@workspace/ui/components/button"
+import { Button, buttonVariants } from "@workspace/ui/components/button"
+import { ButtonGroup } from "@workspace/ui/components/button-group"
 import { Card, CardContent } from "@workspace/ui/components/card"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@workspace/ui/components/dropdown-menu"
 import { Input } from "@workspace/ui/components/input"
 import { cn } from "@workspace/ui/lib/utils"
 
@@ -29,7 +37,11 @@ import {
 
 type StatusFilter = "todos" | ReservationStatus
 
-export function ReservationsTable({ reservations }: { reservations: Reservation[] }) {
+export function ReservationsTable({
+  reservations,
+}: {
+  reservations: Reservation[]
+}) {
   const [query, setQuery] = React.useState("")
   const [status, setStatus] = React.useState<StatusFilter>("reservado")
   const [collapsed, setCollapsed] = React.useState(false)
@@ -71,14 +83,32 @@ export function ReservationsTable({ reservations }: { reservations: Reservation[
           </Button>
         </div>
 
-        <Button
-          nativeButton={false}
-          render={<Link href="/reservas/nova" />}
-          className="ml-auto"
-        >
-          <PlusCircle weight="fill" />
-          Nova reserva
-        </Button>
+        <ButtonGroup className="ml-auto">
+          <Button nativeButton={false} render={<Link href="/reservas/nova" />}>
+            <PlusCircle weight="fill" />
+            Nova reserva
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              aria-label="Mais opções de reserva"
+              className={cn(buttonVariants(), "w-9 px-0")}
+            >
+              <CaretDown />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-44">
+              <DropdownMenuItem render={<Link href="/reservas/nova" />}>
+                <PlusCircle />
+                Reserva
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                render={<Link href="/reservas/nova-em-grupo" />}
+              >
+                <UsersThree />
+                Reserva em grupo
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </ButtonGroup>
       </div>
 
       {/* Status filter chips */}
@@ -198,8 +228,12 @@ export function ReservationsTable({ reservations }: { reservations: Reservation[
                         <td className="px-3 py-2.5 text-muted-foreground">
                           {r.uh || "—"}
                         </td>
-                        <td className="px-3 py-2.5 tabular-nums">{r.checkIn}</td>
-                        <td className="px-3 py-2.5 tabular-nums">{r.checkOut}</td>
+                        <td className="px-3 py-2.5 tabular-nums">
+                          {r.checkIn}
+                        </td>
+                        <td className="px-3 py-2.5 tabular-nums">
+                          {r.checkOut}
+                        </td>
                         <td className="px-3 py-2.5 tabular-nums">
                           {r.qty}
                           {r.extra != null && (
@@ -221,7 +255,13 @@ export function ReservationsTable({ reservations }: { reservations: Reservation[
   )
 }
 
-function HeadCell({ label, sortedAsc }: { label: string; sortedAsc?: boolean }) {
+function HeadCell({
+  label,
+  sortedAsc,
+}: {
+  label: string
+  sortedAsc?: boolean
+}) {
   return (
     <th className="px-3 py-2.5 text-left font-medium">
       <span className="inline-flex items-center gap-1">

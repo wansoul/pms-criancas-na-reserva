@@ -4,7 +4,12 @@ import * as React from "react"
 import { useRouter } from "next/navigation"
 import type { DateRange } from "react-day-picker"
 import { ptBR } from "react-day-picker/locale"
-import { CalendarBlank, CornersOut, UserPlus } from "@phosphor-icons/react"
+import {
+  CalendarBlank,
+  CornersOut,
+  Plus,
+  UserPlus,
+} from "@phosphor-icons/react"
 
 import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
@@ -20,15 +25,17 @@ import { Switch } from "@workspace/ui/components/switch"
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@workspace/ui/components/select"
 import { cn } from "@workspace/ui/lib/utils"
 
-import { ChildrenCount } from "../../_components/children-count"
+import { getCategoryById } from "@/app/cadastros/categorias-de-uh/data/mock-categories"
+
 import { Field, Separator } from "../../_components/form-field"
-import { GuestCount } from "../../_components/guest-count"
 import { SituacaoField } from "../../_components/situacao-field"
 import { getTariffForUh } from "../../data/mock-tarifario"
 import {
@@ -38,6 +45,7 @@ import {
   nightsBetween,
 } from "../../data/reservation-format"
 import { calculateDailyRate } from "../../data/tariff-calculator"
+import { UhOccupancyCard, type UhOccupancy } from "./uh-occupancy-card"
 
 const LIST_URL = "/reservas"
 
@@ -50,8 +58,12 @@ const GUESTS = [
 const UHS = ["Apto 01", "Apto 02", "Apto 03", "Apto 04", "Chalé 01"]
 const CHANNELS = ["Booking.com", "Airbnb", "Expedia", "Site próprio", "Balcão"]
 
-/** Create form for a new reservation. Mocked — no persistence. */
-export function ReservationForm() {
+function newOccupancy(uh: string): UhOccupancy {
+  return { uh, adults: "1", childrenAges: [], exempt: "0" }
+}
+
+/** Create form for a new group reservation. Mocked — no persistence. */
+export function GroupReservationForm() {
   const router = useRouter()
 
   const [situacao, setSituacao] = React.useState("pre-reservar")
@@ -59,39 +71,61 @@ export function ReservationForm() {
   const [period, setPeriod] = React.useState<DateRange | undefined>(
     defaultPeriod
   )
-  const [uh, setUh] = React.useState("")
   const [breakfast, setBreakfast] = React.useState(false)
   const [channel, setChannel] = React.useState("")
-  const [adults, setAdults] = React.useState("1")
-  const [childrenAges, setChildrenAges] = React.useState<string[]>([])
-  const [exempt, setExempt] = React.useState("0")
+  const [uhs, setUhs] = React.useState<UhOccupancy[]>([])
   const [plate, setPlate] = React.useState("")
   const [notes, setNotes] = React.useState("")
   const [showBreakdown, setShowBreakdown] = React.useState(false)
 
-  function setChildrenCount(value: string) {
-    const count = Math.max(0, parseInt(value, 10) || 0)
-    setChildrenAges((prev) =>
-      count > prev.length
-        ? [...prev, ...Array(count - prev.length).fill("")]
-        : prev.slice(0, count)
+  const availableUhs = UHS.filter((u) => !uhs.some((occ) => occ.uh === u))
+
+  const availableUhsByCategory: { category: string; uhs: string[] }[] = []
+  for (const uh of availableUhs) {
+    const tariff = getTariffForUh(uh)
+    const category = tariff ? getCategoryById(tariff.categoryId)?.title : undefined
+    const label = category ?? "Outras"
+    const group = availableUhsByCategory.find((g) => g.category === label)
+    if (group) {
+      group.uhs.push(uh)
+    } else {
+      availableUhsByCategory.push({ category: label, uhs: [uh] })
+    }
+  }
+
+  function addUh(uh: string) {
+    if (!uh || uhs.some((occ) => occ.uh === uh)) return
+    setUhs((prev) => [...prev, newOccupancy(uh)])
+  }
+
+  function removeUh(uh: string) {
+    setUhs((prev) => prev.filter((occ) => occ.uh !== uh))
+  }
+
+  function patchUh(uh: string, patch: Partial<Omit<UhOccupancy, "uh">>) {
+    setUhs((prev) =>
+      prev.map((occ) => (occ.uh === uh ? { ...occ, ...patch } : occ))
     )
   }
 
-  function setChildAge(index: number, value: string) {
-    setChildrenAges((prev) => prev.map((age, i) => (i === index ? value : age)))
-  }
-
   const nights = nightsBetween(period)
-  // Calculated from the rate defined in the tarifário for the selected UH — not user-editable.
-  const tariff = getTariffForUh(uh)
-  const breakdown = calculateDailyRate(
-    tariff,
-    parseInt(adults, 10) || 0,
-    childrenAges.map((age) => parseInt(age, 10) || 0),
-    breakfast
+
+  const uhBreakdowns = uhs.map((occ) => {
+    const tariff = getTariffForUh(occ.uh)
+    const breakdown = calculateDailyRate(
+      tariff,
+      parseInt(occ.adults, 10) || 0,
+      occ.childrenAges.map((age) => parseInt(age, 10) || 0),
+      breakfast
+    )
+    return { uh: occ.uh, tariff, breakdown }
+  })
+
+  const totalPerNight = uhBreakdowns.reduce(
+    (sum, b) => sum + b.breakdown.total,
+    0
   )
-  const totalDiarias = breakdown.total * nights
+  const totalGeral = totalPerNight * nights
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -103,7 +137,7 @@ export function ReservationForm() {
     <Card className="h-fit overflow-hidden p-0">
       <div className="flex items-center justify-between border-b border-border px-5 py-3">
         <h1 className="text-sm font-semibold tracking-wide text-foreground uppercase">
-          Nova reserva
+          Nova reserva em grupo
         </h1>
         <CornersOut className="size-4 text-muted-foreground" />
       </div>
@@ -116,8 +150,8 @@ export function ReservationForm() {
 
           <Separator />
 
-          {/* Hóspede */}
-          <Field label="Hóspede" required>
+          {/* Hóspede responsável */}
+          <Field label="Hóspede resp." required>
             <div className="flex items-center gap-2">
               <Select value={guest} onValueChange={(v) => setGuest(v ?? "")}>
                 <SelectTrigger className="w-full max-w-md">
@@ -174,25 +208,14 @@ export function ReservationForm() {
             </div>
           </Field>
 
-          {/* UH */}
-          <Field label="UH" required>
-            <Select value={uh} onValueChange={(v) => setUh(v ?? "")}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="" />
-              </SelectTrigger>
-              <SelectContent>
-                {UHS.map((u) => (
-                  <SelectItem key={u} value={u}>
-                    {u}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </Field>
-
           {/* Café da manhã */}
           <Field label="Café da manhã">
-            <Switch checked={breakfast} onCheckedChange={setBreakfast} />
+            <div className="flex items-center gap-2">
+              <Switch checked={breakfast} onCheckedChange={setBreakfast} />
+              <span className="text-xs text-muted-foreground">
+                aplica a todas as UHs
+              </span>
+            </div>
           </Field>
 
           {/* Canal de venda */}
@@ -211,39 +234,52 @@ export function ReservationForm() {
             </Select>
           </Field>
 
-          {/* Nº hóspedes */}
-          <Field label="Nº hóspedes" alignTop>
-            <div className="grid max-w-xl grid-cols-3 gap-4">
-              <GuestCount
-                label="Nº adultos"
-                required
-                value={adults}
-                onChange={setAdults}
-                min={1}
-              />
-              <ChildrenCount
-                ages={childrenAges}
-                onCountChange={setChildrenCount}
-                onAgeChange={setChildAge}
-                tariff={tariff}
-              />
-              <GuestCount
-                label="Nº isentos"
-                value={exempt}
-                onChange={setExempt}
-                min={0}
-              />
+          <Separator />
+
+          {/* UHs */}
+          <Field label="UHs" required alignTop>
+            <div className="flex flex-col gap-3">
+              <Select value="" onValueChange={(v) => addUh(v ?? "")}>
+                <SelectTrigger className="w-full max-w-md">
+                  <SelectValue placeholder="+ adicionar UH" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableUhsByCategory.map(({ category, uhs: uhsInCategory }) => (
+                    <SelectGroup key={category}>
+                      <SelectLabel>{category}</SelectLabel>
+                      {uhsInCategory.map((u) => (
+                        <SelectItem key={u} value={u}>
+                          <Plus className="size-3.5" />
+                          {u}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <div className="flex flex-col gap-3">
+                {uhs.map((occ) => (
+                  <UhOccupancyCard
+                    key={occ.uh}
+                    occupancy={occ}
+                    breakfast={breakfast}
+                    onChange={(patch) => patchUh(occ.uh, patch)}
+                    onRemove={() => removeUh(occ.uh)}
+                  />
+                ))}
+              </div>
             </div>
           </Field>
 
           {/* Valor total das diárias */}
-          <Field label="Valor total das diárias" required>
+          <Field label="Valor total" required>
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-2">
                 <Badge className="px-3 py-1 text-sm">
-                  {formatCurrency(totalDiarias)}
+                  {formatCurrency(totalGeral)}
                 </Badge>
-                {tariff && (
+                {uhs.length > 0 && (
                   <button
                     type="button"
                     onClick={() => setShowBreakdown((v) => !v)}
@@ -253,38 +289,47 @@ export function ReservationForm() {
                   </button>
                 )}
               </div>
-              {showBreakdown && tariff && (
-                <div className="flex max-w-sm flex-col gap-1 rounded-md border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
-                  <div className="flex justify-between gap-3">
-                    <span>
-                      Diária base (até {tariff.baseOccupancy} hóspedes)
-                    </span>
-                    <span>{formatCurrency(breakdown.basePrice)}</span>
-                  </div>
-                  {breakdown.extraAdultsCount > 0 && (
-                    <div className="flex justify-between gap-3">
-                      <span>
-                        {breakdown.extraAdultsCount} adulto
-                        {breakdown.extraAdultsCount > 1 ? "s" : ""} extra
-                      </span>
-                      <span>{formatCurrency(breakdown.extraAdultsTotal)}</span>
-                    </div>
-                  )}
-                  {breakdown.extraChildLines.map((line, i) => (
-                    <div key={i} className="flex justify-between gap-3">
-                      <span>{line.label}</span>
-                      <span>{formatCurrency(line.price)}</span>
+              {showBreakdown && uhs.length > 0 && (
+                <div className="flex max-w-sm flex-col gap-2 rounded-md border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
+                  {uhBreakdowns.map(({ uh, tariff, breakdown }) => (
+                    <div key={uh} className="flex flex-col gap-1">
+                      <div className="flex justify-between gap-3">
+                        <span>
+                          {uh}
+                          {tariff && ` (até ${tariff.baseOccupancy} hóspedes)`}
+                        </span>
+                        <span>{formatCurrency(breakdown.basePrice)}</span>
+                      </div>
+                      {breakdown.extraAdultsCount > 0 && (
+                        <div className="flex justify-between gap-3 pl-3">
+                          <span>
+                            {breakdown.extraAdultsCount} adulto
+                            {breakdown.extraAdultsCount > 1 ? "s" : ""} extra
+                          </span>
+                          <span>
+                            {formatCurrency(breakdown.extraAdultsTotal)}
+                          </span>
+                        </div>
+                      )}
+                      {breakdown.extraChildLines.map((line, i) => (
+                        <div key={i} className="flex justify-between gap-3 pl-3">
+                          <span>{line.label}</span>
+                          <span>{formatCurrency(line.price)}</span>
+                        </div>
+                      ))}
+                      {breakdown.breakfastPrice > 0 && (
+                        <div className="flex justify-between gap-3 pl-3">
+                          <span>Café da manhã</span>
+                          <span>
+                            {formatCurrency(breakdown.breakfastPrice)}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   ))}
-                  {breakdown.breakfastPrice > 0 && (
-                    <div className="flex justify-between gap-3">
-                      <span>Café da manhã</span>
-                      <span>{formatCurrency(breakdown.breakfastPrice)}</span>
-                    </div>
-                  )}
                   <div className="flex justify-between gap-3 border-t border-border pt-1 font-medium text-foreground">
-                    <span>Valor por diária</span>
-                    <span>{formatCurrency(breakdown.total)}</span>
+                    <span>Total por diária</span>
+                    <span>{formatCurrency(totalPerNight)}</span>
                   </div>
                   <div>
                     × {nights} {nights === 1 ? "diária" : "diárias"} (
@@ -317,7 +362,7 @@ export function ReservationForm() {
           <Separator />
 
           <div className="flex justify-end">
-            <Button type="submit">Adicionar Reserva</Button>
+            <Button type="submit">Adicionar reserva em grupo</Button>
           </div>
         </form>
       </CardContent>
