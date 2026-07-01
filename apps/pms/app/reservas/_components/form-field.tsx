@@ -15,7 +15,7 @@ export function Field({
   return (
     <div
       className={cn(
-        "grid gap-1.5 sm:grid-cols-[160px_1fr] sm:gap-6",
+        "grid gap-1.5 sm:grid-cols-[var(--field-label-width,160px)_1fr] sm:gap-6",
         alignTop ? "sm:items-start" : "sm:items-center"
       )}
     >

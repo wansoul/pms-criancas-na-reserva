@@ -28,6 +28,8 @@ import {
 import { Input } from "@workspace/ui/components/input"
 import { cn } from "@workspace/ui/lib/utils"
 
+import { GroupReservationModal } from "../nova-em-grupo/_components/group-reservation-modal"
+
 import {
   RESERVATION_STATUSES,
   STATUS_META,
@@ -45,6 +47,7 @@ export function ReservationsTable({
   const [query, setQuery] = React.useState("")
   const [status, setStatus] = React.useState<StatusFilter>("reservado")
   const [collapsed, setCollapsed] = React.useState(false)
+  const [groupModalOpen, setGroupModalOpen] = React.useState(false)
 
   const rows = React.useMemo(() => {
     const term = query.trim().toLowerCase()
@@ -95,7 +98,7 @@ export function ReservationsTable({
             >
               <CaretDown />
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-44">
+            <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuItem render={<Link href="/reservas/nova" />}>
                 <PlusCircle />
                 Reserva
@@ -106,10 +109,19 @@ export function ReservationsTable({
                 <UsersThree />
                 Reserva em grupo
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setGroupModalOpen(true)}>
+                <UsersThree />
+                Reserva em grupo (modal)
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </ButtonGroup>
       </div>
+
+      <GroupReservationModal
+        open={groupModalOpen}
+        onOpenChange={setGroupModalOpen}
+      />
 
       {/* Status filter chips */}
       <div className="flex flex-wrap items-center gap-2">
