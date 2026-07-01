@@ -113,15 +113,6 @@ export function GroupReservationFormByCategoryFields({
       {/* UHs por categoria */}
       <Field label="UHs" required alignTop>
         <div className="flex flex-col gap-3">
-          {rows.length > 0 && (
-            <div className="flex gap-3 pl-3 text-xs text-muted-foreground">
-              <span className="flex-1">Categoria</span>
-              <span className="w-20 shrink-0">Quant.</span>
-              <span className="w-28 shrink-0 text-right">Valor</span>
-              <span className="w-7 shrink-0" />
-            </div>
-          )}
-
           <div className="flex flex-col gap-3">
             {rows.map((row, index) => (
               <CategoryOccupancyRow

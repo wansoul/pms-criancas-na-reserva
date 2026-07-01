@@ -76,7 +76,10 @@ export function CategoryOccupancyRow({
   return (
     <div className="rounded-md border border-border p-3">
       <div className="flex items-end gap-3">
-        <div className="min-w-0 flex-1">
+        <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+          <span className="text-xs font-medium text-muted-foreground">
+            Categoria
+          </span>
           <Select
             value={String(occupancy.categoryId)}
             onValueChange={(v) => onChange({ categoryId: Number(v) })}
@@ -99,7 +102,10 @@ export function CategoryOccupancyRow({
             </SelectContent>
           </Select>
         </div>
-        <div className="w-20 shrink-0">
+        <div className="flex w-20 shrink-0 flex-col gap-1.5">
+          <span className="text-xs font-medium text-muted-foreground">
+            Quant.
+          </span>
           <Input
             type="number"
             min={1}
@@ -107,10 +113,16 @@ export function CategoryOccupancyRow({
             onChange={(e) => onChange({ quantity: e.target.value })}
           />
         </div>
-        <div className="w-28 shrink-0 text-right">
-          <span className="inline-block rounded-md bg-muted px-3 py-1.5 text-sm font-medium text-foreground">
-            {formatCurrency(rowTotal)}
+        <div className="flex w-28 shrink-0 flex-col gap-1.5">
+          <span className="text-xs font-medium text-muted-foreground">
+            Valor
           </span>
+          <Input
+            readOnly
+            tabIndex={-1}
+            value={formatCurrency(rowTotal)}
+            className="bg-muted text-foreground"
+          />
         </div>
         <button
           type="button"
