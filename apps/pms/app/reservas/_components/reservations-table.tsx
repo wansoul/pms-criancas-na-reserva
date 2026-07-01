@@ -28,6 +28,7 @@ import {
 import { Input } from "@workspace/ui/components/input"
 import { cn } from "@workspace/ui/lib/utils"
 
+import { GroupReservationByCategoryModal } from "../nova-em-grupo/_components/group-reservation-by-category-modal"
 import { GroupReservationModal } from "../nova-em-grupo/_components/group-reservation-modal"
 
 import {
@@ -48,6 +49,7 @@ export function ReservationsTable({
   const [status, setStatus] = React.useState<StatusFilter>("reservado")
   const [collapsed, setCollapsed] = React.useState(false)
   const [groupModalOpen, setGroupModalOpen] = React.useState(false)
+  const [categoryModalOpen, setCategoryModalOpen] = React.useState(false)
 
   const rows = React.useMemo(() => {
     const term = query.trim().toLowerCase()
@@ -113,6 +115,10 @@ export function ReservationsTable({
                 <UsersThree />
                 Reserva em grupo (modal)
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setCategoryModalOpen(true)}>
+                <UsersThree />
+                Por categoria
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </ButtonGroup>
@@ -121,6 +127,10 @@ export function ReservationsTable({
       <GroupReservationModal
         open={groupModalOpen}
         onOpenChange={setGroupModalOpen}
+      />
+      <GroupReservationByCategoryModal
+        open={categoryModalOpen}
+        onOpenChange={setCategoryModalOpen}
       />
 
       {/* Status filter chips */}
