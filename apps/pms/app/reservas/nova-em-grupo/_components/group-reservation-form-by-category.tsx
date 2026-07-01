@@ -113,18 +113,16 @@ export function GroupReservationFormByCategoryFields({
       {/* UHs por categoria */}
       <Field label="UHs" required alignTop>
         <div className="flex flex-col gap-3">
-          <div className="flex flex-col gap-3">
-            {rows.map((row, index) => (
-              <CategoryOccupancyRow
-                key={row.categoryId}
-                occupancy={row}
-                availableCategories={availableCategoriesFor(index)}
-                breakfast={base.breakfast}
-                onChange={(patch) => patchRow(index, patch)}
-                onRemove={() => removeRow(index)}
-              />
-            ))}
-          </div>
+          {rows.map((row, index) => (
+            <CategoryOccupancyRow
+              key={row.categoryId}
+              occupancy={row}
+              availableCategories={availableCategoriesFor(index)}
+              breakfast={base.breakfast}
+              onChange={(patch) => patchRow(index, patch)}
+              onRemove={() => removeRow(index)}
+            />
+          ))}
 
           <Button
             type="button"
